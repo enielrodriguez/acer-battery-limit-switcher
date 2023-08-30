@@ -9,7 +9,10 @@ Acer® Battery Limit Switcher
 <br>
 
 # Acer® Battery Limit Switcher
-KDE Plasma widget to turn on/off the Battery Charge Limit feature in compatible Acer® laptops.
+KDE Plasma widget to turn on/off the Battery Charge Limit feature in compatible Acer® laptops.  
+For more information on this topic see: 
+- [Battery Charge Limit and Battery Calibration](https://community.acer.com/en/kb/articles/140-calibrate-your-battery-using-acer-care-center)
+- [acer-wmi-battery](https://github.com/frederik-h/acer-wmi-battery)
 
 ## Install
 
