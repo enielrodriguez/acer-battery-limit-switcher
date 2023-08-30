@@ -8,13 +8,13 @@ Acer® Battery Limit Switcher
 </div>
 <br>
 
-# Asus® Battery Health Switcher
+# Acer® Battery Limit Switcher
 KDE Plasma widget to turn on/off the Battery Charge Limit feature in compatible Acer® laptops.
 
 ## Install
 
 ### KDE Store
-[Acer® Battery Limit Switcher - KDE Store](TODO)
+[Acer® Battery Limit Switcher - KDE Store](https://store.kde.org/p/2079000/)
 
 ### Manual
 - Download/clone this repo.
