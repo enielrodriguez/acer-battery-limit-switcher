@@ -24,8 +24,8 @@ Item {
         "offLimit": "echo 0 | " + root.pkexecPath + " tee " + root.batteryChargeLimitConfigPath + " 1>/dev/null",
         "onCalibration": "echo 1 | " + root.pkexecPath + " tee " + root.batteryCalibrationConfigPath + " 1>/dev/null",
         "offCalibration": "echo 0 | " + root.pkexecPath + " tee " + root.batteryCalibrationConfigPath + " 1>/dev/null",
-        "findChargeLimitConfigPath":"find /home/eniel/ -name \"health_mode\" -path \"*/acer-wmi-battery/*\"",
-        "findCalibrationConfigPath":"find /home/eniel/ -name \"calibration_mode\" -path \"*/acer-wmi-battery/*\"",
+        "findChargeLimitConfigPath":"find /sys -name \"health_mode\" -path \"*/acer-wmi-battery/*\"",
+        "findCalibrationConfigPath":"find /sys -name \"calibration_mode\" -path \"*/acer-wmi-battery/*\"",
         "findNotificationToolPath": "find /usr -type f -executable \\( -name \"notify-send\" -o -name \"zenity\" \\)",
         // defined in findNotificationToolPath Connection
         "sendNotification": () => ""
