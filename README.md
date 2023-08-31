@@ -16,10 +16,17 @@ For more information on this topic see:
 
 ## Install
 
-### KDE Store
-[Acer® Battery Limit Switcher - KDE Store](https://store.kde.org/p/2079000/)
+### Dependencies
 
-### Manual
+- One of the following tools is required for notifications to work. Note that in many distros at least one of the two is installed by default, check it out.
+  - [notify-send](https://www.commandlinux.com/man-page/man1/notify-send.1.html) - a program to send desktop notifications.
+  - [zenity](https://www.commandlinux.com/man-page/man1/zenity.1.html) - display GTK+ dialogs.
+
+### From KDE Store
+You can find it in your software center, in the subcategories `Plasma Addons > Plasma Widgets`.  
+Or you can download or install it directly from the [KDE Store](https://store.kde.org/p/2079000/) website.
+
+### Manually
 - Download/clone this repo.
 - Run from a terminal the command `plasmapkg2 -i [widget folder name]`.
 
