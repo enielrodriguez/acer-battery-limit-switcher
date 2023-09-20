@@ -17,7 +17,7 @@ For more information on this topic see:
 ## Install
 
 ### Dependencies
-
+- The acer-wmi-battery driver is needed for the plasmoid to work.
 - One of the following tools is required for notifications to work. Note that in many distros at least one of the two is installed by default, check it out.
   - [notify-send](https://www.commandlinux.com/man-page/man1/notify-send.1.html) - a program to send desktop notifications.
   - [zenity](https://www.commandlinux.com/man-page/man1/zenity.1.html) - display GTK+ dialogs.
