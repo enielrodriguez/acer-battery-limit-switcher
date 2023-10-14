@@ -11,26 +11,16 @@ import org.kde.plasma.plasmoid 2.0
 Item {
     id: root
 
+    // Path to the pkexec binary
     property string pkexecPath: "/usr/bin/pkexec"
 
+    // Path to the battery charge limit configuration file
     property string batteryChargeLimitConfigPath
+
+    // Path to the battery calibration configuration file
     property string batteryCalibrationConfigPath
 
-
-    readonly property var const_COMMANDS: ({
-        "queryLimitStatus": "cat " + root.batteryChargeLimitConfigPath,
-        "queryCalibrationStatus": "cat " + root.batteryCalibrationConfigPath,
-        "onLimit": "echo 1 | " + root.pkexecPath + " tee " + root.batteryChargeLimitConfigPath + " 1>/dev/null",
-        "offLimit": "echo 0 | " + root.pkexecPath + " tee " + root.batteryChargeLimitConfigPath + " 1>/dev/null",
-        "onCalibration": "echo 1 | " + root.pkexecPath + " tee " + root.batteryCalibrationConfigPath + " 1>/dev/null",
-        "offCalibration": "echo 0 | " + root.pkexecPath + " tee " + root.batteryCalibrationConfigPath + " 1>/dev/null",
-        "findChargeLimitConfigPath":"find /sys -name \"health_mode\" -path \"*/acer-wmi-battery/*\"",
-        "findCalibrationConfigPath":"find /sys -name \"calibration_mode\" -path \"*/acer-wmi-battery/*\"",
-        "findNotificationToolPath": "find /usr -type f -executable \\( -name \"notify-send\" -o -name \"zenity\" \\)",
-        // defined in findNotificationToolPath Connection
-        "sendNotification": () => ""
-    })
-
+    // Icons for different status and error
     property var icons: ({
         "on": Qt.resolvedUrl("./image/on.png"),
         "off": Qt.resolvedUrl("./image/off.png"),
@@ -38,210 +28,127 @@ Item {
         "error": Qt.resolvedUrl("./image/error.png")
     })
 
-    // This values can change after the execution of onCompleted().
+    // The current status of the conservation mode ("on" or "off"). This values can change after the execution of onCompleted().
     property string currentLimitStatus: "off"
+
+    // A flag indicating whether the system is compatible for charge limit. This values can change after the execution of onCompleted().
     property bool isCompatibleChargeLimit: false
+
+    // The current status of the calibration mode ("on" or "off"). This values can change after the execution of onCompleted().
     property string currentCalibrationStatus: "off"
+
+    // A flag indicating whether the system is compatible for calibration. This values can change after the execution of onCompleted().
     property bool isCompatibleCalibration: false
 
+    // The desired status for the charge limit feature ("on" or "off")
     property string desiredLimitStatus: "off"
+
+    // The desired status for the calibration mode feature ("on" or "off")
     property string desiredCalibrationStatus: "off"
 
+    // The notification tool to use (e.g., "zenity" or "notify-send")
+    property string notificationTool: ""
+
+    // A flag indicating if an operation is in progress
     property bool loading: false
 
+    // Determine the icon based on calibration status and charge limit status
     property string icon: root.currentCalibrationStatus === "on" ? root.icons.calibration : root.icons[root.currentLimitStatus]
 
+    // Set the icon for the Plasmoid
     Plasmoid.icon: root.icon
 
+    // Connect to Plasmoid configuration
     Connections {
         target: Plasmoid.configuration
     }
 
+    // Executed when the component is fully initialized
     Component.onCompleted: {
         findNotificationToolPath()
         findChargeLimitConfigPath()
         findCalibrationConfigPath()
     }
 
-    PlasmaCore.DataSource {
+    // CustomDataSource for querying the current charge limit status
+    CustomDataSource {
         id: queryChargeLimitStatusDataSource
-        engine: "executable"
-        connectedSources: []
-
-        onNewData: {
-            var exitCode = data["exit code"]
-            var exitStatus = data["exit status"]
-            var stdout = data["stdout"]
-            var stderr = data["stderr"]
-
-            exited(exitCode, exitStatus, stdout, stderr)
-            disconnectSource(sourceName)
-        }
-
-        function exec(cmd) {
-            connectSource(cmd)
-        }
-
-        signal exited(int exitCode, int exitStatus, string stdout, string stderr)
+        command: "cat " + root.batteryChargeLimitConfigPath
     }
 
-
-    PlasmaCore.DataSource {
+    // CustomDataSource for querying the current calibration status
+    CustomDataSource {
         id: queryCalibrationStatusDataSource
-        engine: "executable"
-        connectedSources: []
-
-        onNewData: {
-            var exitCode = data["exit code"]
-            var exitStatus = data["exit status"]
-            var stdout = data["stdout"]
-            var stderr = data["stderr"]
-
-            exited(exitCode, exitStatus, stdout, stderr)
-            disconnectSource(sourceName)
-        }
-
-        function exec(cmd) {
-            connectSource(cmd)
-        }
-
-        signal exited(int exitCode, int exitStatus, string stdout, string stderr)
+        command: "cat " + root.batteryCalibrationConfigPath
     }
 
-
-    PlasmaCore.DataSource {
+    // CustomDataSource for setting the charge limit status
+    CustomDataSource {
         id: setChargeLimitStatusDataSource
-        engine: "executable"
-        connectedSources: []
 
-        onNewData: {
-            var exitCode = data["exit code"]
-            var exitStatus = data["exit status"]
-            var stdout = data["stdout"]
-            var stderr = data["stderr"]
+        // Dynamically set in switchChargeLimitStatus(). Set a default value to avoid errors at startup.
+        property string status: "off"
 
-            exited(exitCode, exitStatus, stdout, stderr)
-            disconnectSource(sourceName)
+        property var cmds: {
+            "on": "echo 1 | " + root.pkexecPath + " tee " + root.batteryChargeLimitConfigPath + " 1>/dev/null",
+            "off": "echo 0 | " + root.pkexecPath + " tee " + root.batteryChargeLimitConfigPath + " 1>/dev/null"
         }
-
-        function exec(cmd) {
-            connectSource(cmd)
-        }
-
-        signal exited(int exitCode, int exitStatus, string stdout, string stderr)
+        command: cmds[status]
     }
 
-
-    PlasmaCore.DataSource {
+    // CustomDataSource for setting the calibration status
+    CustomDataSource {
         id: setCalibrationStatusDataSource
-        engine: "executable"
-        connectedSources: []
 
-        onNewData: {
-            var exitCode = data["exit code"]
-            var exitStatus = data["exit status"]
-            var stdout = data["stdout"]
-            var stderr = data["stderr"]
+        // Dynamically set in switchCalibrationStatus(). Set a default value to avoid errors at startup.
+        property string status: "off"
 
-            exited(exitCode, exitStatus, stdout, stderr)
-            disconnectSource(sourceName)
+        property var cmds: {
+            "on": "echo 1 | " + root.pkexecPath + " tee " + root.batteryCalibrationConfigPath + " 1>/dev/null",
+            "off": "echo 0 | " + root.pkexecPath + " tee " + root.batteryCalibrationConfigPath + " 1>/dev/null",
         }
-
-        function exec(cmd) {
-            connectSource(cmd)
-        }
-
-        signal exited(int exitCode, int exitStatus, string stdout, string stderr)
+        command: cmds[status]
     }
 
-
-    PlasmaCore.DataSource {
-        id: findNotificationToolPathDataSource
-        engine: "executable"
-        connectedSources: []
-
-        onNewData: {
-            var exitCode = data["exit code"]
-            var exitStatus = data["exit status"]
-            var stdout = data["stdout"]
-            // stderr output can contain "permission denied" errors
-            var stderr = data["stderr"]
-
-            exited(exitCode, exitStatus, stdout, stderr)
-            disconnectSource(sourceName)
-        }
-
-        function exec(cmd) {
-            connectSource(cmd)
-        }
-
-        signal exited(int exitCode, int exitStatus, string stdout, string stderr)
-    }
-
-
-    PlasmaCore.DataSource {
+    // CustomDataSource for finding the charge limit configuration file
+    CustomDataSource {
         id: findChargeLimitConfigPathDataSource
-        engine: "executable"
-        connectedSources: []
-
-        onNewData: {
-            var exitCode = data["exit code"]
-            var exitStatus = data["exit status"]
-            var stdout = data["stdout"]
-            // stderr output can contain "permission denied" errors
-            var stderr = data["stderr"]
-
-            exited(exitCode, exitStatus, stdout, stderr)
-            disconnectSource(sourceName)
-        }
-
-        function exec(cmd) {
-            connectSource(cmd)
-        }
-
-        signal exited(int exitCode, int exitStatus, string stdout, string stderr)
+        command: "find /sys -name \"health_mode\" -path \"*/acer-wmi-battery/*\""
     }
 
-
-    PlasmaCore.DataSource {
+    // CustomDataSource for finding the calibration configuration file
+    CustomDataSource {
         id: findCalibrationConfigPathDataSource
-        engine: "executable"
-        connectedSources: []
-
-        onNewData: {
-            var exitCode = data["exit code"]
-            var exitStatus = data["exit status"]
-            var stdout = data["stdout"]
-            // stderr output can contain "permission denied" errors
-            var stderr = data["stderr"]
-
-            exited(exitCode, exitStatus, stdout, stderr)
-            disconnectSource(sourceName)
-        }
-
-        function exec(cmd) {
-            connectSource(cmd)
-        }
-
-        signal exited(int exitCode, int exitStatus, string stdout, string stderr)
+        command: "find /sys -name \"calibration_mode\" -path \"*/acer-wmi-battery/*\""
     }
 
+    // CustomDataSource for finding the notification tool
+    CustomDataSource {
+        id: findNotificationToolPathDataSource
+        command: "find /usr -type f -executable \\( -name \"notify-send\" -o -name \"zenity\" \\)"
+    }
 
-    PlasmaCore.DataSource {
+    // CustomDataSource for sending notifications
+    CustomDataSource {
         id: sendNotification
-        engine: "executable"
-        connectedSources: []
 
-        onNewData: {
-            disconnectSource(sourceName)
-        }
+        // Dynamically set in showNotification(). Set a default value to avoid errors at startup.
+        property string tool: "notify-send"
 
-        function exec(cmd) {
-            connectSource(cmd)
+        property string iconURL: ""
+        property string title: ""
+        property string message: ""
+        property string options: ""
+
+        property var cmds: {
+            "notify-send": `notify-send -i ${iconURL} '${title}' '${message}' ${options}`,
+            "zenity": `zenity --notification --text='${title}\\n${message}' ${options}`
         }
+        command: cmds[tool]
     }
 
 
+    // Connection for querying charge limit status
     Connections {
         target: queryChargeLimitStatusDataSource
         function onExited(exitCode, exitStatus, stdout, stderr){
@@ -257,7 +164,7 @@ Item {
         }
     }
 
-
+    // Connection for querying calibration status
     Connections {
         target: queryCalibrationStatusDataSource
         function onExited(exitCode, exitStatus, stdout, stderr){
@@ -273,7 +180,7 @@ Item {
         }
     }
 
-
+    // Connection for setting charge limit status
     Connections {
         target: setChargeLimitStatusDataSource
         function onExited(exitCode, exitStatus, stdout, stderr){
@@ -294,7 +201,7 @@ Item {
         }
     }
 
-
+    // Connection for setting calibration status
     Connections {
         target: setCalibrationStatusDataSource
         function onExited(exitCode, exitStatus, stdout, stderr){
@@ -316,29 +223,31 @@ Item {
     }
 
 
+    // Connection for finding the notification tool
     Connections {
         target: findNotificationToolPathDataSource
         function onExited(exitCode, exitStatus, stdout, stderr){
-
             if (stdout) {
                 // Many Linux distros have two notification tools
                 var paths = stdout.trim().split("\n")
                 var path1 = paths[0]
                 var path2 = paths[1]
 
-                // prefer notify-send because it allows to use icon, zenity v3.44.0 does not accept icon option
+                // Prefer notify-send because it allows using an icon; zenity v3.44.0 does not accept an icon option
                 if (path1 && path1.trim().endsWith("notify-send")) {
-                    const_COMMANDS.sendNotification = (title, message, iconURL, options) => path1.trim() + " -i " + iconURL + " '" + title + "' '" + message + "'" + options
-                }if (path2 && path2.trim().endsWith("notify-send")) {
-                    const_COMMANDS.sendNotification = (title, message, iconURL, options) => path2.trim() + " -i " + iconURL + " '" + title + "' '" + message + "'" + options
-                }else if (path1 && path1.trim().endsWith("zenity")) {
-                    const_COMMANDS.sendNotification = (title, message, iconURL, options) => path1.trim() + " --notification --text='" + title + "\\n" + message + "'"
+                    root.notificationTool = "notify-send"
+                } else if (path2 && path2.trim().endsWith("notify-send")) {
+                    root.notificationTool = "notify-send"
+                } else if (path1 && path1.trim().endsWith("zenity")) {
+                    root.notificationTool = "zenity"
+                } else {
+                    console.warn("No compatible notification tool found.")
                 }
             }
         }
     }
 
-
+    // Connection for finding the charge limit config path
     Connections {
         target: findChargeLimitConfigPathDataSource
         function onExited(exitCode, exitStatus, stdout, stderr){
@@ -352,7 +261,7 @@ Item {
         }
     }
 
-
+    // Connection for finding the calibration config path
     Connections {
         target: findCalibrationConfigPathDataSource
         function onExited(exitCode, exitStatus, stdout, stderr){
@@ -365,61 +274,73 @@ Item {
     }
 
 
+    // Function to query the charge limit status
     function queryChargeLimitStatus() {
         root.loading = true
-        queryChargeLimitStatusDataSource.exec(const_COMMANDS.queryLimitStatus)
+        queryChargeLimitStatusDataSource.exec()
     }
 
-
+    // Function to query the calibration status
     function queryCalibrationStatus() {
         root.loading = true
-        queryCalibrationStatusDataSource.exec(const_COMMANDS.queryCalibrationStatus)
+        queryCalibrationStatusDataSource.exec()
     }
 
-
+    // Function to switch charge limit status
     function switchChargeLimitStatus() {
         root.loading = true
 
         showNotification(root.icons[root.desiredLimitStatus], i18n("Switching Charge Limit status to %1.", root.desiredLimitStatus.toUpperCase()))
 
-        setChargeLimitStatusDataSource.exec(const_COMMANDS[root.desiredLimitStatus + "Limit"])
+        setChargeLimitStatusDataSource.status = root.desiredLimitStatus
+        setChargeLimitStatusDataSource.exec()
     }
 
-
+    // Function to switch calibration status
     function switchCalibrationStatus() {
         root.loading = true
 
         showNotification(root.icons.calibration, i18n("Switching Calibration status to %1.", root.desiredCalibrationStatus.toUpperCase()))
 
-        setCalibrationStatusDataSource.exec(const_COMMANDS[root.desiredCalibrationStatus + "Calibration"])
+        setChargeLimitStatusDataSource.status = root.desiredCalibrationStatus
+        setCalibrationStatusDataSource.exec()
     }
 
-
+    // Function to show notifications
     function showNotification(iconURL: string, message: string, title = i18n("Battery Limit Switcher"), options = ""){
-        sendNotification.exec(const_COMMANDS.sendNotification(title, message, iconURL, options))
+        sendNotification.tool = root.notificationTool
+
+        sendNotification.iconURL = iconURL
+        sendNotification.title = message
+        sendNotification.message = title
+        sendNotification.options = options
+
+        sendNotification.exec()
     }
 
+    // Function to find the notification tool path
     function findNotificationToolPath() {
-        findNotificationToolPathDataSource.exec(const_COMMANDS.findNotificationToolPath)
+        findNotificationToolPathDataSource.exec()
     }
 
+    // Function to find the charge limit config path
     function findChargeLimitConfigPath() {
         // Check if the user defined the file path manually and use it if he did.
         if(Plasmoid.configuration.batteryChargeLimitConfigPath){
             root.batteryChargeLimitConfigPath = Plasmoid.configuration.batteryChargeLimitConfigPath
         }else{
-            findChargeLimitConfigPathDataSource.exec(const_COMMANDS.findChargeLimitConfigPath)
+            findChargeLimitConfigPathDataSource.exec()
         }
 
     }
 
-
+    // Function to find the calibration config path
     function findCalibrationConfigPath() {
         // Check if the user defined the file path manually and use it if he did.
         if(Plasmoid.configuration.batteryCalibrationConfigPath){
             root.batteryCalibrationConfigPath = Plasmoid.configuration.batteryCalibrationConfigPath
         }else{
-            findCalibrationConfigPathDataSource.exec(const_COMMANDS.findCalibrationConfigPath)
+            findCalibrationConfigPathDataSource.exec()
         }
 
     }
@@ -538,8 +459,6 @@ Item {
 
         }
     }
-
-    property bool tst: false
 
     Plasmoid.toolTipMainText: i18n("Switch Battery Charge Limit.")
     Plasmoid.toolTipSubText: root.isCompatibleChargeLimit ? i18n("Battery Charge Limit is %1.", root.currentLimitStatus.toUpperCase()) : i18n("The Battery Charge Limit feature is not available.")
