@@ -90,8 +90,8 @@ Item {
         property string status: "off"
 
         property var cmds: {
-            "on": "echo 1 | " + root.pkexecPath + " tee " + root.batteryChargeLimitConfigPath + " 1>/dev/null",
-            "off": "echo 0 | " + root.pkexecPath + " tee " + root.batteryChargeLimitConfigPath + " 1>/dev/null"
+            "on": `echo 1 | ${root.pkexecPath} tee ${root.batteryChargeLimitConfigPath} 1>/dev/null`
+            "off": `echo 0 | ${root.pkexecPath} tee ${root.batteryChargeLimitConfigPath} 1>/dev/null`
         }
         command: cmds[status]
     }
@@ -104,8 +104,8 @@ Item {
         property string status: "off"
 
         property var cmds: {
-            "on": "echo 1 | " + root.pkexecPath + " tee " + root.batteryCalibrationConfigPath + " 1>/dev/null",
-            "off": "echo 0 | " + root.pkexecPath + " tee " + root.batteryCalibrationConfigPath + " 1>/dev/null",
+            "on": `echo 1 | ${root.pkexecPath} tee ${root.batteryCalibrationConfigPath} 1>/dev/null`,
+            "off": `echo 0 | ${root.pkexecPath} tee ${root.batteryCalibrationConfigPath} 1>/dev/null`
         }
         command: cmds[status]
     }

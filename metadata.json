@@ -1,0 +1,27 @@
+{
+    "KPlugin": {
+        "Authors": [
+            {
+                "Email": "eniel160990@gmail.com",
+                "Name": "Eniel"
+            }
+        ],
+        "Category": "Hardware",
+        "Description": "KDE widget to turn on/off the Battery Charge Limit feature in compatible Acer laptops.",
+        "Description[es]": "KDE widget para apagar/encender el modo Battery Charge Limit en laptops Acer compatibles.",
+        "EnabledByDefault": true,
+        "Icon": "battery",
+        "Id": "acer-battery-limit-switcher",
+        "License": "GPL3",
+        "Name": "Acer Battery Limit Switcher",
+        "ServiceTypes": [
+            "Plasma/Applet"
+        ],
+        "Version": "1.0.1",
+        "Website": ""
+    },
+    "X-Plasma-API": "declarativeappletscript",
+    "X-Plasma-MainScript": "ui/main.qml",
+    "X-Plasma-NotificationArea": "true",
+    "X-Plasma-NotificationAreaCategory": "Hardware"
+}
