@@ -58,11 +58,6 @@ Item {
     // Set the icon for the Plasmoid
     Plasmoid.icon: root.icon
 
-    // Connect to Plasmoid configuration
-    Connections {
-        target: Plasmoid.configuration
-    }
-
     // Executed when the component is fully initialized
     Component.onCompleted: {
         findNotificationToolPath()
@@ -326,8 +321,8 @@ Item {
     // Function to find the charge limit config path
     function findChargeLimitConfigPath() {
         // Check if the user defined the file path manually and use it if he did.
-        if(Plasmoid.configuration.batteryChargeLimitConfigPath){
-            root.batteryChargeLimitConfigPath = Plasmoid.configuration.batteryChargeLimitConfigPath
+        if(plasmoid.configuration.batteryChargeLimitConfigPath){
+            root.batteryChargeLimitConfigPath = plasmoid.configuration.batteryChargeLimitConfigPath
         }else{
             findChargeLimitConfigPathDataSource.exec()
         }
@@ -337,8 +332,8 @@ Item {
     // Function to find the calibration config path
     function findCalibrationConfigPath() {
         // Check if the user defined the file path manually and use it if he did.
-        if(Plasmoid.configuration.batteryCalibrationConfigPath){
-            root.batteryCalibrationConfigPath = Plasmoid.configuration.batteryCalibrationConfigPath
+        if(plasmoid.configuration.batteryCalibrationConfigPath){
+            root.batteryCalibrationConfigPath = plasmoid.configuration.batteryCalibrationConfigPath
         }else{
             findCalibrationConfigPathDataSource.exec()
         }
@@ -349,8 +344,8 @@ Item {
 
     Plasmoid.compactRepresentation: Item {
         PlasmaCore.IconItem {
-            height: Plasmoid.configuration.iconSize
-            width: Plasmoid.configuration.iconSize
+            height: plasmoid.configuration.iconSize
+            width: plasmoid.configuration.iconSize
             anchors.centerIn: parent
 
             source: root.icon
