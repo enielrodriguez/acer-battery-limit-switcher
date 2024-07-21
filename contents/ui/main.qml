@@ -199,6 +199,8 @@ Item {
     Connections {
         target: findNotificationToolDataSource
         function onExited(exitCode, exitStatus, stdout, stderr){
+            root.loading = false
+
             if (stdout) {
                 var paths = stdout.trim().split("\n");
                 var notificationTool = "";
@@ -231,6 +233,8 @@ Item {
     Connections {
         target: findChargeLimitConfigPathDataSource
         function onExited(exitCode, exitStatus, stdout, stderr){
+            root.loading = false
+
             if (stdout.trim()) {
                 plasmoid.configuration.batteryChargeLimitConfigPath = stdout.trim()
                 plasmoid.configuration.isCompatibleChargeLimit = true
@@ -246,6 +250,8 @@ Item {
     Connections {
         target: findCalibrationConfigPathDataSource
         function onExited(exitCode, exitStatus, stdout, stderr){
+            root.loading = false
+            
             if (stdout.trim()) {
                 plasmoid.configuration.batteryCalibrationConfigPath = stdout.trim()
                 plasmoid.configuration.isCompatibleCalibration = true
