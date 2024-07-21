@@ -199,28 +199,32 @@ Item {
     Connections {
         target: findNotificationToolDataSource
         function onExited(exitCode, exitStatus, stdout, stderr){
+            root.loading = false
+
+            var notificationTool = ""
+
             if (stdout) {
-                var paths = stdout.trim().split("\n");
-                var notificationTool = "";
+                var paths = stdout.trim().split("\n")
+
 
                 // Many Linux distros have two notification tools: notify-send and zenity
                 // Prefer notify-send because it allows using an icon; zenity v3.44.0 does not accept an icon option
                 for (let i = 0; i < paths.length; ++i) {
-                    let currentPath = paths[i].trim();
+                    let currentPath = paths[i].trim()
                     
                     if (currentPath.endsWith("notify-send")) {
-                        notificationTool = "notify-send";
-                        break;
+                        notificationTool = "notify-send"
+                        break
                     } else if (currentPath.endsWith("zenity")) {
-                        notificationTool = "zenity";
+                        notificationTool = "zenity"
                     }
                 }
+            }
 
-                if (notificationTool) {
-                    plasmoid.configuration.notificationToolPath = notificationTool;
-                } else {
-                    console.warn("No compatible notification tool found.");
-                }
+            if (notificationTool) {
+                plasmoid.configuration.notificationToolPath = notificationTool
+            } else {
+                console.warn("No compatible notification tool found.")
             }
 
             findCalibrationConfigPath()
@@ -231,6 +235,8 @@ Item {
     Connections {
         target: findChargeLimitConfigPathDataSource
         function onExited(exitCode, exitStatus, stdout, stderr){
+            root.loading = false
+
             if (stdout.trim()) {
                 plasmoid.configuration.batteryChargeLimitConfigPath = stdout.trim()
                 plasmoid.configuration.isCompatibleChargeLimit = true
@@ -246,6 +252,8 @@ Item {
     Connections {
         target: findCalibrationConfigPathDataSource
         function onExited(exitCode, exitStatus, stdout, stderr){
+            root.loading = false
+
             if (stdout.trim()) {
                 plasmoid.configuration.batteryCalibrationConfigPath = stdout.trim()
                 plasmoid.configuration.isCompatibleCalibration = true
@@ -256,6 +264,29 @@ Item {
         }
     }
 
+    Connections {
+        target: plasmoid.configuration
+        function onBatteryCalibrationConfigPathChanged(){
+            if(plasmoid.configuration.batteryCalibrationConfigPath){
+                plasmoid.configuration.isCompatibleCalibration = true
+            }else {
+                plasmoid.configuration.isCompatibleCalibration = false
+            }
+            findCalibrationConfigPath()
+        }
+    }
+
+    Connections {
+        target: plasmoid.configuration
+        function onBatteryChargeLimitConfigPathChanged(){
+            if(plasmoid.configuration.batteryChargeLimitConfigPath){
+                plasmoid.configuration.isCompatibleChargeLimit = true
+            }else {
+                plasmoid.configuration.isCompatibleChargeLimit = false
+            }
+            findChargeLimitConfigPath()
+        }
+    }
 
     // Function to query the charge limit status
     function queryChargeLimitStatus() {
@@ -285,7 +316,7 @@ Item {
 
         showNotification(root.icons.calibration, i18n("Switching Calibration status to %1.", root.desiredCalibrationStatus.toUpperCase()))
 
-        setChargeLimitStatusDataSource.status = root.desiredCalibrationStatus
+        setCalibrationStatusDataSource.status = root.desiredCalibrationStatus
         setCalibrationStatusDataSource.exec()
     }
 
@@ -316,7 +347,7 @@ Item {
 
     // Function to find the charge limit config path
     function findChargeLimitConfigPath() {
-        if (!plasmoid.configuration.batteryChargeLimitConfigPath || !plasmoid.configuration.isCompatibleChargeLimit){
+        if (!plasmoid.configuration.batteryChargeLimitConfigPath && !plasmoid.configuration.isCompatibleChargeLimit){
             root.loading = true
             findChargeLimitConfigPathDataSource.exec()
         } else {
@@ -388,11 +419,11 @@ Item {
                 }
                 PlasmaComponents3.Switch {
                     Layout.alignment: Qt.AlignCenter
-                    enabled: !root.loading && plasmoid.configuration.currentCalibrationStatus === "off"
+                    enabled: !root.loading && (!plasmoid.configuration.currentCalibrationStatus || plasmoid.configuration.currentCalibrationStatus === "off")
                     checked: root.desiredLimitStatus === "on"
                     onCheckedChanged: {
                         root.desiredLimitStatus = checked ? "on" : "off"
-                        if(root.desiredLimitStatus !== plasmoid.configuration.currentLimitStatus){
+                        if(plasmoid.configuration.currentLimitStatus && root.desiredLimitStatus !== plasmoid.configuration.currentLimitStatus){
                             switchChargeLimitStatus()
                         }
                     }
@@ -429,24 +460,22 @@ Item {
                 }
                 PlasmaComponents3.Switch {
                     Layout.alignment: Qt.AlignCenter
-                    enabled: !root.loading && plasmoid.configuration.currentLimitStatus === "off"
+                    enabled: !root.loading && (!plasmoid.configuration.currentLimitStatus || plasmoid.configuration.currentLimitStatus === "off")
                     checked: root.desiredCalibrationStatus === "on"
                     onCheckedChanged: {
                         root.desiredCalibrationStatus = checked ? "on" : "off"
-                        if(root.desiredCalibrationStatus !== plasmoid.configuration.currentCalibrationStatus){
+                        if(plasmoid.configuration.currentCalibrationStatus && root.desiredCalibrationStatus !== plasmoid.configuration.currentCalibrationStatus){
                             switchCalibrationStatus()
                         }
                     }
-                }
+                }                
             }
-
 
             BusyIndicator {
                 id: loadingIndicator
                 Layout.alignment: Qt.AlignCenter
                 running: root.loading
             }
-
         }
     }
 
