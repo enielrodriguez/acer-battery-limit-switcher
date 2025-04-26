@@ -37,3 +37,6 @@ Any recommendations and contributions are welcome.
 ## Screenshots
 
 ![Screenshot_20250426_195356](https://github.com/user-attachments/assets/8ca62e11-33a7-4687-8015-9df8f0601db5)
+
+![Screenshot_20250426_195739](https://github.com/user-attachments/assets/791155a4-6ede-4e5a-8f0b-521ee3ece9da)
+
