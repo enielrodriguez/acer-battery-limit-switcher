@@ -36,8 +36,4 @@ Any recommendations and contributions are welcome.
 
 ## Screenshots
 
-![Screenshot_20230830_153819](https://github.com/enielrodriguez/acer-battery-limit-switcher/assets/31964610/aa8f2f4b-6e99-455d-8aa7-a69ba3af1055)
-
-![Screenshot_20230830_153810](https://github.com/enielrodriguez/acer-battery-limit-switcher/assets/31964610/e5d4ac73-49ea-483f-819e-8597745c67f5)
-
-![Screenshot_20230830_153829](https://github.com/enielrodriguez/acer-battery-limit-switcher/assets/31964610/ef0f13ee-52b6-4eb7-b77f-556d7c212f56)
+![Screenshot_20250426_195356](https://github.com/user-attachments/assets/8ca62e11-33a7-4687-8015-9df8f0601db5)
