@@ -1,14 +1,14 @@
 // TODO: check https://github.com/maniacx/Battery-Health-Charging for compatibility and different models, specially models with dual battery
 
-import QtQuick 2.0
-import QtQuick.Layouts 1.0
-import QtQuick.Controls 2.0
-import org.kde.plasma.components 3.0 as PlasmaComponents3
-import org.kde.plasma.core 2.0 as PlasmaCore
-import org.kde.plasma.plasmoid 2.0
+import QtQuick
+import QtQuick.Layouts
+import QtQuick.Controls
+import org.kde.plasma.components as PlasmaComponents3
+import org.kde.kirigami as Kirigami
+import org.kde.plasma.plasmoid
 
 
-Item {
+PlasmoidItem {
     id: root
 
     // Icons for different status and error
@@ -121,7 +121,7 @@ Item {
     // Connection for querying charge limit status
     Connections {
         target: queryChargeLimitStatusDataSource
-        function onExited(exitCode, exitStatus, stdout, stderr){
+        function onExited(exitCode, exitStatus, stdout, stderr) {
             root.loading = false
 
             if (stderr) {
@@ -137,9 +137,9 @@ Item {
     // Connection for querying calibration status
     Connections {
         target: queryCalibrationStatusDataSource
-        function onExited(exitCode, exitStatus, stdout, stderr){
+        function onExited(exitCode, exitStatus, stdout, stderr) {
             root.loading = false
-
+            
             if (stderr) {
                 root.icon = root.icons.error
                 showNotification(root.icons.error, stderr, stderr)
@@ -155,7 +155,7 @@ Item {
     // Connection for setting charge limit status
     Connections {
         target: setChargeLimitStatusDataSource
-        function onExited(exitCode, exitStatus, stdout, stderr){
+        function onExited(exitCode, exitStatus, stdout, stderr) {
             root.loading = false
 
             if(exitCode === 127){
@@ -176,7 +176,7 @@ Item {
     // Connection for setting calibration status
     Connections {
         target: setCalibrationStatusDataSource
-        function onExited(exitCode, exitStatus, stdout, stderr){
+        function onExited(exitCode, exitStatus, stdout, stderr) {
             root.loading = false
 
             if(exitCode === 127){
@@ -198,7 +198,7 @@ Item {
     // Connection for finding the notification tool
     Connections {
         target: findNotificationToolDataSource
-        function onExited(exitCode, exitStatus, stdout, stderr){
+        function onExited(exitCode, exitStatus, stdout, stderr) {
             root.loading = false
 
             var notificationTool = ""
@@ -234,7 +234,7 @@ Item {
     // Connection for finding the charge limit config path
     Connections {
         target: findChargeLimitConfigPathDataSource
-        function onExited(exitCode, exitStatus, stdout, stderr){
+        function onExited(exitCode, exitStatus, stdout, stderr) {
             root.loading = false
 
             if (stdout.trim()) {
@@ -251,7 +251,7 @@ Item {
     // Connection for finding the calibration config path
     Connections {
         target: findCalibrationConfigPathDataSource
-        function onExited(exitCode, exitStatus, stdout, stderr){
+        function onExited(exitCode, exitStatus, stdout, stderr) {
             root.loading = false
 
             if (stdout.trim()) {
@@ -266,7 +266,8 @@ Item {
 
     Connections {
         target: plasmoid.configuration
-        function onBatteryCalibrationConfigPathChanged(){
+        function onBatteryCalibrationConfigPathChanged() {
+            
             if(plasmoid.configuration.batteryCalibrationConfigPath){
                 plasmoid.configuration.isCompatibleCalibration = true
             }else {
@@ -278,7 +279,7 @@ Item {
 
     Connections {
         target: plasmoid.configuration
-        function onBatteryChargeLimitConfigPathChanged(){
+        function onBatteryChargeLimitConfigPathChanged() {
             if(plasmoid.configuration.batteryChargeLimitConfigPath){
                 plasmoid.configuration.isCompatibleChargeLimit = true
             }else {
@@ -347,6 +348,7 @@ Item {
 
     // Function to find the charge limit config path
     function findChargeLimitConfigPath() {
+        
         if (!plasmoid.configuration.batteryChargeLimitConfigPath && !plasmoid.configuration.isCompatibleChargeLimit){
             root.loading = true
             findChargeLimitConfigPathDataSource.exec()
@@ -366,10 +368,8 @@ Item {
 
     }
 
-    Plasmoid.preferredRepresentation: Plasmoid.compactRepresentation
-
-    Plasmoid.compactRepresentation: Item {
-        PlasmaCore.IconItem {
+    compactRepresentation: Item {
+        Kirigami.Icon {
             height: plasmoid.configuration.iconSize
             width: plasmoid.configuration.iconSize
             anchors.centerIn: parent
@@ -382,15 +382,15 @@ Item {
                 anchors.fill: parent
                 hoverEnabled: true
                 onClicked: {
-                    plasmoid.expanded = !plasmoid.expanded
+                    expanded = !expanded
                 }
             }
         }
     }
 
-    Plasmoid.fullRepresentation: Item {
-        Layout.preferredWidth: 400 * PlasmaCore.Units.devicePixelRatio
-        Layout.preferredHeight: 300 * PlasmaCore.Units.devicePixelRatio
+    fullRepresentation: Item {
+        Layout.preferredWidth: 400
+        Layout.preferredHeight: 300
 
         ColumnLayout {
             anchors.centerIn: parent
@@ -408,6 +408,7 @@ Item {
                 Layout.alignment: Qt.AlignCenter
                 text: plasmoid.configuration.isCompatibleChargeLimit ? i18n("Battery Charge Limit is %1.", plasmoid.configuration.currentLimitStatus.toUpperCase()) : i18n("The Battery Charge Limit feature is not available.")
             }
+
             ColumnLayout {
                 Layout.alignment: Qt.AlignCenter
                 visible: plasmoid.configuration.isCompatibleChargeLimit
@@ -429,8 +430,6 @@ Item {
                     }
                 }
             }
-
-
 
             ColumnLayout {
                 Layout.alignment: Qt.AlignCenter
@@ -479,6 +478,6 @@ Item {
         }
     }
 
-    Plasmoid.toolTipMainText: i18n("Switch Battery Charge Limit.")
-    Plasmoid.toolTipSubText: plasmoid.configuration.isCompatibleChargeLimit ? i18n("Battery Charge Limit is %1.", plasmoid.configuration.currentLimitStatus.toUpperCase()) : i18n("The Battery Charge Limit feature is not available.")
+    toolTipMainText: i18n("Switch Battery Charge Limit.")
+    toolTipSubText: plasmoid.configuration.isCompatibleChargeLimit ? i18n("Battery Charge Limit is %1.", plasmoid.configuration.currentLimitStatus.toUpperCase()) : i18n("The Battery Charge Limit feature is not available.")
 }
